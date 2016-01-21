@@ -1,6 +1,6 @@
 #include <yaml-cpp/yaml.h>
 #include <iostream>
-#include <mysql.h>
+#include <mysql/mysql.h>
 #include <cstdlib>
 #include <ctime>
 #include <sstream>
