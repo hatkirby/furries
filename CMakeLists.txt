@@ -5,7 +5,10 @@ add_subdirectory(vendor/twitcurl/libtwitcurl)
 
 find_package(PkgConfig)
 pkg_check_modules(YamlCpp yaml-cpp REQUIRED)
+pkg_check_modules(sqlite3 sqlite3 REQUIRED)
 
-include_directories(vendor/twitcurl/libtwitcurl)
+include_directories(vendor/twitcurl/libtwitcurl ${sqlite3_INCLUDE_DIR})
 add_executable(furries furries.cpp)
-target_link_libraries(furries ${YamlCpp_LIBRARIES} mysqlclient twitcurl curl)
+set_property(TARGET furries PROPERTY CXX_STANDARD 11)
+set_property(TARGET furries PROPERTY CXX_STANDARD_REQUIRED ON)
+target_link_libraries(furries ${sqlite3_LIBRARIES} ${YamlCpp_LIBRARIES} twitcurl curl)
