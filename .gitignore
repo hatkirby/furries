@@ -1,1 +1,10 @@
 config.yml
+.DS_Store
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+furries
+furries.dSYM/
+generator
+generator.dSYM/

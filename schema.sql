@@ -34,5 +34,122 @@ CREATE TABLE `verb_groups` (
 DROP TABLE IF EXISTS `adjectives`;
 CREATE TABLE `adjectives` (
   `adjective_id` INTEGER PRIMARY KEY,
-  `adjective` VARCHAR(32) NOT NULL
+  `form` VARCHAR(32) NOT NULL,
+  `position` CHAR(1)
+);
+
+DROP TABLE IF EXISTS `adverbs`;
+CREATE TABLE `adverbs` (
+  `adverb_id` INTEGER PRIMARY KEY,
+  `form` VARCHAR(32) NOT NULL
+);
+
+DROP TABLE IF EXISTS `nouns`;
+CREATE TABLE `nouns` (
+  `noun_id` INTEGER PRIMARY KEY,
+  `form` VARCHAR(32) NOT NULL
+);
+
+DROP TABLE IF EXISTS `hypernymy`;
+CREATE TABLE `hypernymy` (
+  `hypernym_id` INTEGER NOT NULL,
+  `hyponym_id` INTEGER NOT NULL,
+  FOREIGN KEY (`hypernym_id`) REFERENCES `nouns`(`noun_id`),
+  FOREIGN KEY (`hyponym_id`) REFERENCES `nouns`(`noun_id`)
+);
+
+DROP TABLE IF EXISTS `instantiation`;
+CREATE TABLE `instantiation` (
+  `class_id` INTEGER NOT NULL,
+  `instance_id` INTEGER NOT NULL,
+  FOREIGN KEY (`class_id`) REFERENCES `nouns`(`noun_id`),
+  FOREIGN KEY (`instance_id`) REFERENCES `nouns`(`noun_id`)
+);
+
+DROP TABLE IF EXISTS `member_meronymy`;
+CREATE TABLE `member_meronymy` (
+  `meronym_id` INTEGER NOT NULL,
+  `holonym_id` INTEGER NOT NULL,
+  FOREIGN KEY (`meronym_id`) REFERENCES `nouns`(`noun_id`),
+  FOREIGN KEY (`holonym_id`) REFERENCES `nouns`(`noun_id`)
+);
+
+DROP TABLE IF EXISTS `part_meronymy`;
+CREATE TABLE `part_meronymy` (
+  `meronym_id` INTEGER NOT NULL,
+  `holonym_id` INTEGER NOT NULL,
+  FOREIGN KEY (`meronym_id`) REFERENCES `nouns`(`noun_id`),
+  FOREIGN KEY (`holonym_id`) REFERENCES `nouns`(`noun_id`)
+);
+
+DROP TABLE IF EXISTS `substance_meronymy`;
+CREATE TABLE `substance_meronymy` (
+  `meronym_id` INTEGER NOT NULL,
+  `holonym_id` INTEGER NOT NULL,
+  FOREIGN KEY (`meronym_id`) REFERENCES `nouns`(`noun_id`),
+  FOREIGN KEY (`holonym_id`) REFERENCES `nouns`(`noun_id`)
+);
+
+DROP TABLE IF EXISTS `variation`;
+CREATE TABLE `variation` (
+  `noun_id` INTEGER NOT NULL,
+  `adjective_id` INTEGER NOT NULL,
+  FOREIGN KEY (`noun_id`) REFERENCES `nouns`(`noun_id`),
+  FOREIGN KEY (`adjective_id`) REFERENCES `adjectives`(`adjective_id`)
+);
+
+DROP TABLE IF EXISTS `noun_antonymy`;
+CREATE TABLE `noun_antonymy` (
+  `noun_1_id` INTEGER NOT NULL,
+  `noun_2_id` INTEGER NOT NULL,
+  FOREIGN KEY (`noun_1_id`) REFERENCES `nouns`(`noun_id`),
+  FOREIGN KEY (`noun_2_id`) REFERENCES `nouns`(`noun_id`)
+);
+
+DROP TABLE IF EXISTS `adjective_antonymy`;
+CREATE TABLE `adjective_antonymy` (
+  `adjective_1_id` INTEGER NOT NULL,
+  `adjective_2_id` INTEGER NOT NULL,
+  FOREIGN KEY (`adjective_1_id`) REFERENCES `adjectives`(`adjective_id`),
+  FOREIGN KEY (`adjective_2_id`) REFERENCES `adjectives`(`adjective_id`)
+);
+
+DROP TABLE IF EXISTS `adverb_antonymy`;
+CREATE TABLE `adverb_antonymy` (
+  `adverb_1_id` INTEGER NOT NULL,
+  `adverb_2_id` INTEGER NOT NULL,
+  FOREIGN KEY (`adverb_1_id`) REFERENCES `adverbs`(`adverb_id`),
+  FOREIGN KEY (`adverb_2_id`) REFERENCES `adverbs`(`adverb_id`)
+);
+
+DROP TABLE IF EXISTS `specification`;
+CREATE TABLE `specification` (
+  `general_id` INTEGER NOT NULL,
+  `specific_id` INTEGER NOT NULL,
+  FOREIGN KEY (`general_id`) REFERENCES `adjectives`(`adjective_id`),
+  FOREIGN KEY (`specific_id`) REFERENCES `adjectives`(`adjective_id`)
+);
+
+DROP TABLE IF EXISTS `pertainymy`;
+CREATE TABLE `pertainymy` (
+  `noun_id` INTEGER NOT NULL,
+  `pertainym_id` INTEGER NOT NULL,
+  FOREIGN KEY (`noun_id`) REFERENCES `nouns`(`noun_id`),
+  FOREIGN KEY (`pertainym_id`) REFERENCES `adjectives`(`adjective_id`)
+);
+
+DROP TABLE IF EXISTS `mannernymy`;
+CREATE TABLE `mannernymy` (
+  `adjective_id` INTEGER NOT NULL,
+  `mannernym_id` INTEGER NOT NULL,
+  FOREIGN KEY (`adjective_id`) REFERENCES `adjectives`(`adjective_id`),
+  FOREIGN KEY (`mannernym_id`) REFERENCES `adverbs`(`adverb_id`)
+);
+
+DROP TABLE IF EXISTS `synonymy`;
+CREATE TABLE `synonymy` (
+  `adjective_1_id` INTEGER NOT NULL,
+  `adjective_2_id` INTEGER NOT NULL,
+  FOREIGN KEY (`adjective_1_id`) REFERENCES `adjectives`(`adjective_id`),
+  FOREIGN KEY (`adjective_2_id`) REFERENCES `adjectives`(`adjective_id`)
 );

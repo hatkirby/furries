@@ -62,7 +62,15 @@ class fill_blanks {
             case verbly::fillin_type::adjective:
             {
               const verbly::adjective& adj = database.adjectives().random(true).limit(1).run().front();
-              it = std::make_unique<verbly::string_token>(adj.value);
+              it = std::make_unique<verbly::string_token>(adj.form);
+              
+              break;
+            }
+            
+            case verbly::fillin_type::adverb:
+            {
+              const verbly::adverb& adv = database.adverbs().random(true).limit(1).run().front();
+              it = std::make_unique<verbly::string_token>(adv.form);
               
               break;
             }
@@ -108,6 +116,11 @@ int main(int argc, char** argv)
     });
     forms.push_back({
       new verbly::string_token("the furries are"),
+      new verbly::fillin_token(verbly::fillin_type::adjective)
+    });
+    forms.push_back({
+      new verbly::string_token("the furries are"),
+      new verbly::fillin_token(verbly::fillin_type::adverb),
       new verbly::fillin_token(verbly::fillin_type::adjective)
     });
     
