@@ -20,7 +20,7 @@ class fill_blanks {
     {
       switch (it->token_type())
       {
-        case verbly::type::utterance:
+        case verbly::token::type::utterance:
         {
           auto& action = *dynamic_cast<verbly::utterance_token*>(it.get());
           for (auto& tkn : action)
@@ -36,14 +36,14 @@ class fill_blanks {
           break;
         }
         
-        case verbly::type::fillin:
+        case verbly::token::type::fillin:
         {
           auto& tkn = *dynamic_cast<verbly::fillin_token*>(it.get());
           switch (tkn.fillin_type())
           {
             case verbly::fillin_type::participle_phrase:
             {
-              const verbly::verb& v = database.verbs().random(true).limit(1).run().front();
+              verbly::verb v = database.verbs().random(true).limit(1).run().front();
               /*verbly::utterance_token phrase = verbly::random(v.frames).make_utterance();
               while (std::begin(phrase)->token_type() != verbly::type::verb)
               {
@@ -53,7 +53,7 @@ class fill_blanks {
               *std::begin(phrase) = verbly::verb_token(v).conjugate(verbly::conjugation::present_participle);
               *it = phrase;*/
               auto avt = std::make_unique<verbly::verb_token>(v);
-              avt->conjugate(verbly::conjugation::present_participle);
+              avt->inflect(verbly::verb_token::inflection::ing_form);
               it = std::move(avt);
   
               break;
@@ -61,16 +61,16 @@ class fill_blanks {
             
             case verbly::fillin_type::adjective:
             {
-              const verbly::adjective& adj = database.adjectives().random(true).limit(1).run().front();
-              it = std::make_unique<verbly::string_token>(adj.form);
+              verbly::adjective adj = database.adjectives().random(true).limit(1).run().front();
+              it = std::make_unique<verbly::string_token>(adj.base_form());
               
               break;
             }
             
             case verbly::fillin_type::adverb:
             {
-              const verbly::adverb& adv = database.adverbs().random(true).limit(1).run().front();
-              it = std::make_unique<verbly::string_token>(adv.form);
+              verbly::adverb adv = database.adverbs().random(true).limit(1).run().front();
+              it = std::make_unique<verbly::string_token>(adv.base_form());
               
               break;
             }

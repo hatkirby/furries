@@ -34,20 +34,25 @@ CREATE TABLE `verb_groups` (
 DROP TABLE IF EXISTS `adjectives`;
 CREATE TABLE `adjectives` (
   `adjective_id` INTEGER PRIMARY KEY,
-  `form` VARCHAR(32) NOT NULL,
+  `base_form` VARCHAR(32) NOT NULL,
+  `comparative` VARCHAR(32),
+  `superlative` VARCHAR(32),
   `position` CHAR(1)
 );
 
 DROP TABLE IF EXISTS `adverbs`;
 CREATE TABLE `adverbs` (
   `adverb_id` INTEGER PRIMARY KEY,
-  `form` VARCHAR(32) NOT NULL
+  `base_form` VARCHAR(32) NOT NULL,
+  `comparative` VARCHAR(32),
+  `superlative` VARCHAR(32)
 );
 
 DROP TABLE IF EXISTS `nouns`;
 CREATE TABLE `nouns` (
   `noun_id` INTEGER PRIMARY KEY,
-  `form` VARCHAR(32) NOT NULL
+  `singular` VARCHAR(32) NOT NULL,
+  `plural` VARCHAR(32)
 );
 
 DROP TABLE IF EXISTS `hypernymy`;
@@ -146,10 +151,54 @@ CREATE TABLE `mannernymy` (
   FOREIGN KEY (`mannernym_id`) REFERENCES `adverbs`(`adverb_id`)
 );
 
-DROP TABLE IF EXISTS `synonymy`;
-CREATE TABLE `synonymy` (
+DROP TABLE IF EXISTS `noun_synonymy`;
+CREATE TABLE `noun_synonymy` (
+  `noun_1_id` INTEGER NOT NULL,
+  `noun_2_id` INTEGER NOT NULL,
+  FOREIGN KEY (`noun_1_id`) REFERENCES `nouns`(`nouns_id`),
+  FOREIGN KEY (`noun_2_id`) REFERENCES `nouns`(`nouns_id`)
+);
+
+DROP TABLE IF EXISTS `adjective_synonymy`;
+CREATE TABLE `adjective_synonymy` (
   `adjective_1_id` INTEGER NOT NULL,
   `adjective_2_id` INTEGER NOT NULL,
   FOREIGN KEY (`adjective_1_id`) REFERENCES `adjectives`(`adjective_id`),
   FOREIGN KEY (`adjective_2_id`) REFERENCES `adjectives`(`adjective_id`)
+);
+
+DROP TABLE IF EXISTS `adverb_synonymy`;
+CREATE TABLE `adverb_synonymy` (
+  `adverb_1_id` INTEGER NOT NULL,
+  `adverb_2_id` INTEGER NOT NULL,
+  FOREIGN KEY (`adverb_1_id`) REFERENCES `adverbs`(`adverb_id`),
+  FOREIGN KEY (`adverb_2_id`) REFERENCES `adverbs`(`adverb_id`)
+);
+
+DROP TABLE IF EXISTS `noun_pronunciations`;
+CREATE TABLE `noun_pronunciations` (
+  `noun_id` INTEGER NOT NULL,
+  `pronunciation` VARCHAR(64) NOT NULL,
+  FOREIGN KEY (`noun_id`) REFERENCES `nouns`(`noun_id`)
+);
+
+DROP TABLE IF EXISTS `verb_pronunciations`;
+CREATE TABLE `verb_pronunciations` (
+  `verb_id` INTEGER NOT NULL,
+  `pronunciation` VARCHAR(64) NOT NULL,
+  FOREIGN KEY (`verb_id`) REFERENCES `verbs`(`verb_id`)
+);
+
+DROP TABLE IF EXISTS `adjective_pronunciations`;
+CREATE TABLE `adjective_pronunciations` (
+  `adjective_id` INTEGER NOT NULL,
+  `pronunciation` VARCHAR(64) NOT NULL,
+  FOREIGN KEY (`adjective_id`) REFERENCES `adjectives`(`adjective_id`)
+);
+
+DROP TABLE IF EXISTS `adverb_pronunciations`;
+CREATE TABLE `adverb_pronunciations` (
+  `adverb_id` INTEGER NOT NULL,
+  `pronunciation` VARCHAR(64) NOT NULL,
+  FOREIGN KEY (`adverb_id`) REFERENCES `adverbs`(`adverb_id`)
 );
