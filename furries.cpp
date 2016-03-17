@@ -4,7 +4,7 @@
 #include <ctime>
 #include <sstream>
 #include <twitcurl.h>
-#include "verbly/verbly.h"
+#include <verbly.h>
 
 class fill_blanks {
   private:

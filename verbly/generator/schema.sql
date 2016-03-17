@@ -202,3 +202,51 @@ CREATE TABLE `adverb_pronunciations` (
   `pronunciation` VARCHAR(64) NOT NULL,
   FOREIGN KEY (`adverb_id`) REFERENCES `adverbs`(`adverb_id`)
 );
+
+DROP TABLE IF EXISTS `noun_noun_derivation`;
+CREATE TABLE `noun_noun_derivation` (
+  `noun_1_id` INTEGER NOT NULL,
+  `noun_2_id` INTEGER NOT NULL,
+  FOREIGN KEY (`noun_1_id`) REFERENCES `nouns`(`noun_id`),
+  FOREIGN KEY (`noun_2_id`) REFERENCES `nouns`(`noun_id`)
+);
+
+DROP TABLE IF EXISTS `noun_adjective_derivation`;
+CREATE TABLE `noun_adjective_derivation` (
+  `noun_id` INTEGER NOT NULL,
+  `adjective_id` INTEGER NOT NULL,
+  FOREIGN KEY (`noun_id`) REFERENCES `nouns`(`noun_id`),
+  FOREIGN KEY (`adjective_id`) REFERENCES `adjectives`(`adjective_id`)
+);
+
+DROP TABLE IF EXISTS `noun_adverb_derivation`;
+CREATE TABLE `noun_adverb_derivation` (
+  `noun_id` INTEGER NOT NULL,
+  `adverb_id` INTEGER NOT NULL,
+  FOREIGN KEY (`noun_id`) REFERENCES `nouns`(`noun_id`),
+  FOREIGN KEY (`adverb_id`) REFERENCES `adverbs`(`adverb_id`)
+);
+
+DROP TABLE IF EXISTS `adjective_adjective_derivation`;
+CREATE TABLE `adjective_adjective_derivation` (
+  `adjective_1_id` INTEGER NOT NULL,
+  `adjective_2_id` INTEGER NOT NULL,
+  FOREIGN KEY (`adjective_1_id`) REFERENCES `adjectives`(`adjective_id`),
+  FOREIGN KEY (`adjective_2_id`) REFERENCES `adjectives`(`adjective_id`)
+);
+
+DROP TABLE IF EXISTS `adjective_adverb_derivation`;
+CREATE TABLE `adjective_adverb_derivation` (
+  `adjective_id` INTEGER NOT NULL,
+  `adverb_id` INTEGER NOT NULL,
+  FOREIGN KEY (`adjective_id`) REFERENCES `adjectives`(`adjective_id`),
+  FOREIGN KEY (`adverb_id`) REFERENCES `adverbs`(`adjective_id`)
+);
+
+DROP TABLE IF EXISTS `adverb_adverb_derivation`;
+CREATE TABLE `adverb_adverb_derivation` (
+  `adverb_1_id` INTEGER NOT NULL,
+  `adverb_2_id` INTEGER NOT NULL,
+  FOREIGN KEY (`adverb_1_id`) REFERENCES `adverbs`(`adverb_id`),
+  FOREIGN KEY (`adverb_2_id`) REFERENCES `adverbs`(`adverb_id`)
+);

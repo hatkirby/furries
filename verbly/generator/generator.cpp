@@ -459,6 +459,7 @@ int main(int argc, char** argv)
   // - s: master list
   // - ant: antonymy (e.g. happy/sad, sad/happy, happiness/sadness)
   // - at: variation (e.g. a measurement can be standard or nonstandard)
+  // - der: derivation (e.g. happy/happily, happily/happy)
   // - hyp: hypernymy/hyponymy (e.g. color/red, color/blue)
   // - ins: instantiation (do we need this? let's see)
   // - mm: member meronymy/holonymy (e.g. family/mother, family/child)
@@ -890,6 +891,148 @@ int main(int argc, char** argv)
           sqlite3_finalize(ppstmt);
         }
       }
+    }
+  }
+  
+  // der table
+  {
+    std::ifstream wnderfile(wnpref + "wn_der.pl");
+    if (!wnderfile.is_open())
+    {
+      std::cout << "Invalid WordNet data directory." << std::endl;
+      print_usage();
+    }
+    
+    std::list<std::string> lines;
+    for (;;)
+    {
+      std::string line;
+      if (!getline(wnderfile, line))
+      {
+        break;
+      }
+    
+      if (line.back() == '\r')
+      {
+        line.pop_back();
+      }
+      
+      lines.push_back(line);
+    }
+    
+    progress ppgs("Writing morphological derivation...", lines.size());
+    for (auto line : lines)
+    {
+      ppgs.update();
+      
+      std::regex relation("^der\\(([134]\\d{8}),(\\d+),([134]\\d{8}),(\\d+)\\)\\.");
+      std::smatch relation_data;
+      if (!std::regex_search(line, relation_data, relation))
+      {
+        continue;
+      }
+      
+      int synset_id_1 = stoi(relation_data[1]);
+      int wnum_1 = stoi(relation_data[2]);
+      int synset_id_2 = stoi(relation_data[3]);
+      int wnum_2 = stoi(relation_data[4]);
+      std::string query;
+      switch (synset_id_1 / 100000000)
+      {
+        case 1: // Noun
+        {
+          switch (synset_id_2 / 100000000)
+          {
+            case 1: // Noun
+            {
+              query = "INSERT INTO noun_noun_derivation (noun_1_id, noun_2_id) VALUES (?, ?)";
+              break;
+            }
+            
+            case 3: // Adjective
+            {
+              query = "INSERT INTO noun_adjective_derivation (noun_id, adjective_id) VALUES (?, ?)";
+              break;
+            }
+            
+            case 4: // Adverb
+            {
+              query = "INSERT INTO noun_adverb_derivation (noun_id, adverb_id) VALUES (?, ?)";
+              break;
+            }
+          }
+          
+          break;
+        }
+        
+        case 3: // Adjective
+        {
+          switch (synset_id_2 / 100000000)
+          {
+            case 1: // Noun
+            {
+              query = "INSERT INTO noun_adjective_derivation (adjective_id, noun_id) VALUES (?, ?)";
+              break;
+            }
+            
+            case 3: // Adjective
+            {
+              query = "INSERT INTO adjective_adjective_derivation (adjective_id, adjective_id) VALUES (?, ?)";
+              break;
+            }
+            
+            case 4: // Adverb
+            {
+              query = "INSERT INTO adjective_adverb_derivation (adjective_id, adverb_id) VALUES (?, ?)";
+              break;
+            }
+          }
+          
+          break;
+        }
+        
+        case 4: // Adverb
+        {
+          switch (synset_id_2 / 100000000)
+          {
+            case 1: // Noun
+            {
+              query = "INSERT INTO noun_adverb_derivation (adverb_id, noun_id) VALUES (?, ?)";
+              break;
+            }
+            
+            case 3: // Adjective
+            {
+              query = "INSERT INTO adjective_adverb_derivation (adverb_id, adjective_id) VALUES (?, ?)";
+              break;
+            }
+            
+            case 4: // Adverb
+            {
+              query = "INSERT INTO adverb_adverb_derivation (adverb_1_id, adverb_2_id) VALUES (?, ?)";
+              break;
+            }
+          }
+          
+          break;
+        }
+      }
+      
+      sqlite3_stmt* ppstmt;
+      if (sqlite3_prepare_v2(ppdb, query.c_str(), query.size(), &ppstmt, NULL) != SQLITE_OK)
+      {
+        db_error(ppdb, query);
+      }
+      
+      sqlite3_bind_int(ppstmt, 1, wn[synset_id_1][wnum_1]);
+      sqlite3_bind_int(ppstmt, 2, wn[synset_id_2][wnum_2]);
+      
+      if (sqlite3_step(ppstmt) != SQLITE_DONE)
+      {
+        db_error(ppdb, query);
+      }
+      
+      sqlite3_finalize(ppstmt);
     }
   }
   
@@ -1375,7 +1518,7 @@ int main(int argc, char** argv)
       sqlite3_finalize(ppstmt);
     }
   }
-  /*
+
   // sim table
   {
     std::ifstream wnsimfile(wnpref + "wn_sim.pl");
@@ -1452,7 +1595,7 @@ int main(int argc, char** argv)
       }
     }
   }
-  */
+  
   // syntax table
   {
     std::ifstream wnsyntaxfile(wnpref + "wn_syntax.pl");
