@@ -94,10 +94,6 @@ int main(int argc, char** argv)
   srand(time(NULL));
   
   YAML::Node config = YAML::LoadFile("config.yml");
-  const char* host = config["host"].as<std::string>().c_str();
-  const char* user = config["user"].as<std::string>().c_str();
-  const char* pass = config["pass"].as<std::string>().c_str();
-  const char* db = config["db"].as<std::string>().c_str();
     
   twitCurl twitter;
   twitter.getOAuth().setConsumerKey(config["consumer_key"].as<std::string>());
@@ -135,8 +131,6 @@ int main(int argc, char** argv)
     std::string result = action->compile();
     result.resize(140);
 
-    std::cout << result << std::endl;
-    /*
     std::string replyMsg;
     if (twitter.statusUpdate(result))
     {
@@ -145,9 +139,9 @@ int main(int argc, char** argv)
     } else {
       twitter.getLastCurlError(replyMsg);
       std::cout << "Curl error: " << replyMsg << std::endl;
-    }*/
+    }
     
     std::cout << "Waiting" << std::endl;
-    sleep(/*60 * 60 * */ 3);
+    sleep(60 * 60 * 3);
   }
 }
