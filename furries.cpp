@@ -39,7 +39,7 @@ class fill_blanks {
         case verbly::token::type::fillin:
         {
           auto& tkn = *dynamic_cast<verbly::fillin_token*>(it.get());
-          switch (tkn.fillin_type())
+          switch (tkn.get_fillin_type())
           {
             case verbly::fillin_type::participle_phrase:
             {
