@@ -12,4 +12,4 @@ include_directories(vendor/twitcurl/libtwitcurl ${sqlite3_INCLUDE_DIR} vendor/ve
 add_executable(furries furries.cpp)
 set_property(TARGET furries PROPERTY CXX_STANDARD 11)
 set_property(TARGET furries PROPERTY CXX_STANDARD_REQUIRED ON)
-target_link_libraries(furries ${sqlite3_LIBRARIES} ${YamlCpp_LIBRARIES} twitcurl curl verbly)
+target_link_libraries(furries verbly ${sqlite3_LIBRARIES} ${YamlCpp_LIBRARIES} twitcurl curl)
