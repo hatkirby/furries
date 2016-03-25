@@ -407,6 +407,8 @@ class fill_blanks {
               
               utter << verbly::token{database.verbs().random().limit(1).run().front()};
               
+              it = utter;
+              
               break;
             }
 
