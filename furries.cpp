@@ -5,6 +5,7 @@
 #include <sstream>
 #include <twitcurl.h>
 #include <verbly.h>
+#include <unistd.h>
 
 class fill_blanks {
   private:
