@@ -1,11 +1,11 @@
 #include <yaml-cpp/yaml.h>
-#include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <sstream>
-#include <twitcurl.h>
+#include <twitter.h>
 #include <verbly.h>
-#include <unistd.h>
+#include <iostream>
+#include <sstream>
+#include <chrono>
+#include <thread>
+#include <random>
 
 class fill_blanks {
   private:
@@ -150,7 +150,8 @@ class fill_blanks {
       }
     }
     
-    void visit(verbly::token& it)
+    template <typename RNG>
+    void visit(verbly::token& it, RNG&& rng)
     {
       switch (it.get_type())
       {
@@ -160,7 +161,7 @@ class fill_blanks {
           {
             if (!tkn.is_complete())
             {
-              visit(tkn);
+              visit(tkn, rng);
               
               break;
             }
@@ -209,7 +210,8 @@ class fill_blanks {
                   continue;
                 }
                 
-                verbly::frame fr = filtered[rand() % filtered.size()];
+                int fr_i = std::uniform_int_distribution<int>(0, filtered.size()-1)(rng);
+                verbly::frame fr = filtered[fr_i];
                 verbly::token utter;
                 for (auto part : fr.parts())
                 {
@@ -251,7 +253,7 @@ class fill_blanks {
                         continue;
                       } else if (part.get_synrestrs().count("adv_loc") == 1)
                       {
-                        if (rand() % 2 == 0)
+                        if (std::bernoulli_distribution(1.0/2.0)(rng))
                         {
                           utter << verbly::token{"here"};
                         } else {
@@ -286,7 +288,7 @@ class fill_blanks {
                       auto selrestrs = fr.roles()[part.get_role()];
                       auto query = database.nouns().limit(1).random().is_not_proper().full_hyponym_of(parse_selrestrs(selrestrs));
                       verbly::noun n = query.run().front();
-                      if ((rand() % 2 == 0) && (part.get_synrestrs().count("definite") == 0))
+                      if ((std::bernoulli_distribution(1.0/2.0)(rng)) && (part.get_synrestrs().count("definite") == 0))
                       {
                         utter << verbly::token{"the"};
                       } else {
@@ -322,7 +324,8 @@ class fill_blanks {
                   
                     case verbly::frame::part::type::literal_preposition:
                     {
-                      utter << verbly::token{part.get_choices()[rand() % part.get_choices().size()]};
+                      int ch_i = std::uniform_int_distribution<int>(0, part.get_choices().size()-1)(rng);
+                      utter << verbly::token{part.get_choices()[ch_i]};
                     
                       break;
                     }
@@ -374,12 +377,12 @@ class fill_blanks {
             {
               verbly::token phrase;
               
-              if (rand() % 4 == 0)
+              if (std::bernoulli_distribution(1.0/4.0)(rng))
               {
                 phrase << verbly::token{verbly::token::fillin_type::adverb_phrase};
               }
               
-              if (rand() % 2 == 0)
+              if (std::bernoulli_distribution(1.0/2.0)(rng))
               {
                 phrase << verbly::token{verbly::token::fillin_type::participle_phrase};
               } else {
@@ -429,21 +432,23 @@ class fill_blanks {
 
 int main(int argc, char** argv)
 {
-  srand(time(NULL));
+  std::random_device random_device;
+  std::mt19937 random_engine{random_device()};
   
   YAML::Node config = YAML::LoadFile("config.yml");
-    
-  twitCurl twitter;
-  twitter.getOAuth().setConsumerKey(config["consumer_key"].as<std::string>());
-  twitter.getOAuth().setConsumerSecret(config["consumer_secret"].as<std::string>());
-  twitter.getOAuth().setOAuthTokenKey(config["access_key"].as<std::string>());
-  twitter.getOAuth().setOAuthTokenSecret(config["access_secret"].as<std::string>());
+  
+  twitter::auth auth;
+  auth.setConsumerKey(config["consumer_key"].as<std::string>());
+  auth.setConsumerSecret(config["consumer_secret"].as<std::string>());
+  auth.setAccessKey(config["access_key"].as<std::string>());
+  auth.setAccessSecret(config["access_secret"].as<std::string>());
+  
+  twitter::client client(auth);
+  verbly::data database {"data.sqlite3"};
   
   for (;;)
   {
-    std::cout << "Generating tweet" << std::endl;
-    
-    verbly::data database {"data.sqlite3"};
+    std::cout << "Generating tweet..." << std::endl;
 
     fill_blanks yeah {database};
     verbly::token action{
@@ -452,23 +457,24 @@ int main(int argc, char** argv)
     };
     while (!action.is_complete())
     {
-      yeah.visit(action);
+      yeah.visit(action, random_engine);
     }
     
     std::string result = action.compile();
     result.resize(140);
 
-    std::string replyMsg;
-    if (twitter.statusUpdate(result))
+    try
     {
-      twitter.getLastWebResponse(replyMsg);
-      std::cout << "Twitter message: " << replyMsg << std::endl;
-    } else {
-      twitter.getLastCurlError(replyMsg);
-      std::cout << "Curl error: " << replyMsg << std::endl;
+      client.updateStatus(result);
+      
+      std::cout << "Tweeted!" << std::endl;
+    } catch (const twitter::twitter_error& e)
+    {
+      std::cout << "Twitter error: " << e.what() << std::endl;
     }
     
-    std::cout << "Waiting" << std::endl;
-    sleep(60 * 60 * 2);
+    std::cout << "Waiting..." << std::endl;
+    
+    std::this_thread::sleep_for(std::chrono::hours(1));
   }
 }
