@@ -1,8 +1,6 @@
 # furries
-furries is a simple twitter bot inspired by the following image:
+furries is a simple twitter bot inspired by a still from a news program about the furry community in Pittsburgh featuring three fursuiters and the text "The Furries Are Back".
 
-![the furries are back](http://www.wtae.com/image/view/-/20831998/highRes/1/-/maxh/630/maxw/1200/-/tyl7ng/-/img-The-Furries-Are-Back-Who-Are-They.jpg)
-
-It uses my natural language generation library [verbly](https://github.com/hatkirby/verbly) to pick words, [YAMLcpp](https://github.com/jbeder/yaml-cpp) to read a configuration file, and [twitcurl](https://github.com/swatkat/twitcurl) to send the status updates to Twitter.
+It uses my natural language generation library [verbly](https://github.com/hatkirby/verbly) to pick words, [YAMLcpp](https://github.com/jbeder/yaml-cpp) to read a configuration file, and my C++ Twitter library [libtwitter++](https://github.com/hatkirby/libtwittercpp) to send the status updates to Twitter.
 
 The canonical furries handle is [@thefurriesare](https://twitter.com/thefurriesare).
