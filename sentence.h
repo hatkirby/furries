@@ -4,6 +4,7 @@
 #include <verbly.h>
 #include <random>
 #include <string>
+#include <set>
 
 class sentence {
 public:
@@ -16,11 +17,9 @@ public:
 
 private:
 
-  verbly::filter parseSelrestrs(verbly::selrestr selrestr) const;
+  bool chooseSelrestr(std::set<std::string> selrestrs, std::set<std::string> choices) const;
 
-  bool requiresSelrestr(std::string restriction, verbly::selrestr selrestr) const;
-
-  verbly::word generateStandardNoun(std::string role, verbly::selrestr selrestrs) const;
+  verbly::word generateStandardNoun(std::string role, std::set<std::string> selrestrs) const;
 
   verbly::token generateStandardNounPhrase(
     const verbly::word& noun,
